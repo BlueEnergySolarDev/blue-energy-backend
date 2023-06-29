@@ -1,4 +1,4 @@
-# Backend API MERN - BlueEnergyApp
+# Backend API MERN - BlueEnergy
 
 To run the project in dev use:
 
