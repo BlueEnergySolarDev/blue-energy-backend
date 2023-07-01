@@ -40,6 +40,10 @@ const SitDownSchema = Schema({
     type: String,
     default: true,
   },
+  office: {
+    type: String,
+    default: true,
+  },
 });
 SitDownSchema.methods.toJSON = function () {
   const { __v, status, _id, ...data } = this.toObject();

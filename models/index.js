@@ -1,7 +1,11 @@
 const User = require('./user');
-const SitDown = require('./sitdown');
+const SitDown = require('./sit_down');
+const SitDownCounter = require('./sit_down_counter');
+const SitDownSimple = require('./sit_down_simple');
 
-module.exports={
+module.exports = {
     User,
-    SitDown
+    SitDown,
+    SitDownCounter,
+    SitDownSimple
 }

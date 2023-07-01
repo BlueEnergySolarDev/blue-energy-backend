@@ -2,298 +2,240 @@ const { response } = require("express");
 const bcrypt = require("bcryptjs");
 const { generarJWT } = require("../helpers/jwt");
 const { User } = require("../models");
-// const { OAuth2Client } = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 
-const crearUsuario = async (req, res = response) => {
-  const { email, password, dni, rrpp, comisionRRPP, comisionEnt, maxFree, evento, rolEvento, eventoNombre, rrppNombre } = req.body;
+const createUser = async (req, res = response) => {
+  const { email, password, name, lastname, role, office } = req.body;
   try {
-    let usuario = await User.findOne({ email });
-    let usuarioDb = await User.findOne({ dni });
-    if (usuarioDb) {
+    let user = await User.findOne({ email });
+    if (user) {
       return res.status(400).json({
         ok: false,
-        msg: "El DNI de rpp ya existe en el sistema, ingrese otro",
+        msg: "This email is already registered",
       });
     }
-    //let evento = await Evento.findOne({ evento });
-    if (usuario) {
-      return res.status(400).json({
-        ok: false,
-        msg: "El EMAIL rpp ya existe en el sistema, ingrese otro",
-      });
-    }
-    //usuario.evento = evento.uid;
-    usuario = new User(req.body);
+    //Initialize user
+    user = new User({ email, password, name, lastname, role, office });
 
-    // Encriptar contraseña
+    // Encript password
     const salt = bcrypt.genSaltSync();
-    usuario.password = bcrypt.hashSync(password, salt);
+    user.password = bcrypt.hashSync(password, salt);
 
-    const userdb = await usuario.save();
-    //ASOCIANDO EVENTOS A RRPP
-    // const queryevento = { estado: true };
-    // const eventos = await Evento.find(queryevento);
-    const eventoss = [];
-    // for(let i = 0; i<eventos.length;i++){
-    const eventod = {
-      evento,
-      eventoNombre,
-      deuda: 0,
-      deudaComision: 0,
-      cantFreeCargados: 0,
-      totalEntradas: 0,
-      rrpp,
-      rrppNombre,
-      comisionRRPP,
-      comisionEnt,
-      maxFree,
-      rolEvento
-    }
-    eventoss.push(eventod);
-    // }
-    const queryeventous = { estado: true, _id: userdb.id };
-    await User.findOneAndUpdate(queryeventous, { $push: { eventos: eventoss } }, { new: true });
-    // let update;
-    // if(comisionRRPP===undefined||comisionRRPP===''||comisionRRPP===null){
-    //   update = {rrpp,comisionRRPP:0};
-    // }else{
-    //   update = {rrpp};
-    // }
-    // await User.findOneAndUpdate(queryeventous,update,{new:true});
-    // Generar JWT
-    const token = await generarJWT(usuario.id, usuario.nombre);
+    // Save user
+    await user.save();
+
+    // Generate JWT
+    const token = await generarJWT(user.id, user.name);
 
     res.status(201).json({
       ok: true,
-      uid: usuario.id,
-      nombre: usuario.nombre,
-      rol: usuario.nombre,
+      uid: user.id,
+      name: user.name,
+      role: user.role,
+      office: user.office,
       token,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Por favor hable con el administrador",
+      msg: "Please, contact the admin",
     });
   }
 };
-const crearUsuarioCliente = async (req, res = response) => {
-  const { email, password } = req.body;
-  try {
-    let usuario = await User.findOne({ email: email });
-    if (usuario) {
-      return res.status(400).json({
-        ok: false,
-        msg: "El EMAIL ya esta registrado, ingrese otro",
-      });
-    }
-    let usuarioNuevo = new User(req.body);
-    // Encriptar contraseña
-    const salt = bcrypt.genSaltSync();
-    usuarioNuevo.password = bcrypt.hashSync(password, salt);
-    await usuarioNuevo.save();
-    // Generar JWT
-    const token = await generarJWT(usuarioNuevo.id, usuarioNuevo.nombre);
-
-    res.status(201).json({
-      ok: true,
-      uid: usuarioNuevo.id,
-      nombre: usuarioNuevo.nombre,
-      rol: usuarioNuevo.nombre,
-      token,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      ok: false,
-      msg: "Por favor hable con el administrador",
-    });
-  }
-};
-const loginUsuario = async (req, res = response) => {
+const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
 
   try {
-    const usuario = await User.findOne({ email, online: true });
-    if (!usuario) {
+    const user = await User.findOne({ email, status: true });
+    if (!user) {
       return res.status(400).json({
         ok: false,
-        msg: "El usuario no existe con ese email",
+        msg: "User not exists with this email",
       });
     }
 
     // Confirmar los passwords
-    const validPassword = bcrypt.compareSync(password, usuario.password);
+    const validPassword = bcrypt.compareSync(password, user.password);
 
     if (!validPassword) {
       return res.status(400).json({
         ok: false,
-        msg: "Password incorrecto",
+        msg: "Wrong password",
       });
     }
 
     // Generar JWT
-    const token = await generarJWT(usuario.id, usuario.nombre);
+    const token = await generarJWT(user.id, user.name);
 
     res.json({
       ok: true,
-      uid: usuario.id,
-      nombre: usuario.nombre,
-      rol: usuario.rol,
-      // maxFree: usuario.maxFree ? usuario.maxFree : 0,
+      uid: user.id,
+      name: user.name,
+      role: user.role,
       token,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Por favor hable con el administrador",
+      msg: "Please, contact the admin",
     });
   }
 };
-const loginUsuarioGoogle = async (req, res = response) => {
-  const { email, nombre, apellido } = req.body;
+const loginGoogleUser = async (req, res = response) => {
+  const { email, name, lastname, role, office } = req.body;
   try {
-    const usuario = await User.findOne({ email, online: true });
-    let token, uid, nombree, rol;
-    if (!usuario) {
+    const user = await User.findOne({ email });
+    let token, uid, namee, rolee, officee;
+    if (!user) {
       const password = process.env.SECRET_PASSWORD;
-      const usuarioNuevo = new User({ password, email, nombre, apellido, rol: "CLIENTE", online: true });
+      const newUser = new User({ password, email, name, lastname, role, office });
       const salt = bcrypt.genSaltSync();
-      usuarioNuevo.password = bcrypt.hashSync(password, salt);
-      await usuarioNuevo.save();
-      token = await generarJWT(usuarioNuevo._id, usuarioNuevo.nombre);
-      nombree = usuarioNuevo.nombre;
-      uid = usuarioNuevo._id;
-      rol = usuarioNuevo.rol;
-
+      newUser.password = bcrypt.hashSync(password, salt);
+      await newUser.save();
+      token = await generarJWT(newUser._id, newUser.name);
+      namee = newUser.name;
+      uid = newUser._id;
+      rolee = newUser.role;
+      officee = newUser.office;
     } else {
-      token = await generarJWT(usuario._id, usuario.nombre);
-      nombree = usuario.nombre;
-      uid = usuario._id;
-      rol = usuario.rol;
+      token = await generarJWT(user._id, user.name);
+      namee = user.name;
+      uid = user._id;
+      rolee = user.role;
+      officee = user.office;
     }
     res.json({
       ok: true,
       uid: uid,
-      nombre: nombree,
-      rol: rol,
+      name: namee,
+      role: rolee,
+      office: officee,
       token,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Por favor hable con el administrador",
+      msg: "Please, contact the admin",
     });
   }
 };
-// const loginUsuarioNuevoGoogle = async (req, res = response) => {
-//   const { credential } = req.body;
-//   try {
-//     const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
-//     const ticket = await client.verifyIdToken({
-//       idToken: credential,
-//       audience: process.env.GOOGLE_CLIENTID,
-//     });
-//     const { email, email_verified, family_name, given_name } = ticket.getPayload();
-//     res.json({
-//       email,
-//       isVerified: email_verified,
-//       apellido: family_name,
-//       nombre: given_name
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       ok: false,
-//       msg: "Por favor hable con el administrador",
-//     });
-//   }
-// };
-const revalidarToken = async (req, res = response) => {
-  const { uid, nombre } = req;
-  let rol = "";
-  let usuario;
+const getGoogleDataByCredential = async (req, res = response) => {
+  const { credential } = req.body;
   try {
-    usuario = await User.findById({ _id: uid });
-    if (usuario) {
-      rol = usuario.rol;
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENTID,
+    });
+    const { email, email_verified, family_name, given_name } = ticket.getPayload();
+    const lastname = family_name.trim();
+    const name = given_name.trim();
+
+    //Verify if user exists
+    let alreadyCreatedUser = false;
+    const user = await User.findOne({ email });
+    if (user) {
+      alreadyCreatedUser = true;
+    }
+
+    res.json({
+      email,
+      isVerified: email_verified,
+      lastname,
+      name,
+      created: alreadyCreatedUser
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  }
+};
+const revalidateToken = async (req, res = response) => {
+  const { uid, name } = req;
+  let role = "";
+  let office = "";
+  let user;
+  try {
+    user = await User.findById({ _id: uid });
+    if (user) {
+      role = user.role;
+      office = user.office;
     } else {
-      const cliente = await Cliente.findById({ _id: uid });
-      if (cliente) {
-        rol = cliente.rol;
-      } else {
-        rol = "CLIENTE";
-      }
+      role = "closer";
+      office = "Cape Coral";
     }
   } catch (error) {
     console.log(error)
   }
   // Generar JWT
-  const token = await generarJWT(uid, nombre);
+  const token = await generarJWT(uid, name);
 
   res.json({
     ok: true,
     token,
     uid,
-    nombre,
-    rol
+    name,
+    role,
+    office
   });
 };
 const getUser = async (req, res) => {
   const { id } = req.params;
-  const query = { estado: true, _id: id };
+  const query = { status: true, _id: id };
   try {
-    const usuario = await User.findOne(query);
-    //const clientes = await Cliente..populate("usuario", "nombre");
-    if (!usuario) {
+    const user = await User.findOne(query);
+    if (!user) {
       return res.status(400).json({
-        msg: `El usuario no existe`,
+        msg: `The user not exists`,
       });
     }
-    return res.status(201).json({ usuario });
+    return res.status(201).json({ ok: true, user });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       ok: false,
-      msg: "Hable con el administrador",
+      msg: "Please, contact the admin",
     });
   }
 };
-const actualizarUsuario = async (req, res) => {
-  const { email, nombre, password, apellido } = req.body;
+const updateUser = async (req, res) => {
+  const { email, name, password, lastname } = req.body;
   try {
-    const usuario = await User.findOne({ email });
-    if (!usuario) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(400).json({
         ok: false,
-        msg: "El usuario no existe",
+        msg: `The user not exists`,
       });
     }
 
     const salt = bcrypt.genSaltSync();
     const newPassword = bcrypt.hashSync(password.trim(), salt);
     const pass = newPassword.trim();
-    const update = { email, nombre, password: pass, apellido };
-    const usuarioUpdate = await User.findOneAndUpdate({ email }, update, { new: true });
-    return res.status(201).json({ ok: true, usuario: usuarioUpdate });
+    const update = { email, name, password: pass, lastname };
+    const userUpdate = await User.findOneAndUpdate({ email }, update, { new: true });
+    return res.status(201).json({ ok: true, user: userUpdate });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       ok: false,
-      msg: "Hable con el administrador",
+      msg: "Please, contact the admin",
     });
   }
 };
 
 module.exports = {
-  crearUsuario,
-  loginUsuario,
-  revalidarToken,
-  crearUsuarioCliente,
+  createUser,
+  loginUser,
+  revalidateToken,
   getUser,
-  actualizarUsuario,
-  loginUsuarioGoogle,
+  updateUser,
+  loginGoogleUser,
+  getGoogleDataByCredential
 };

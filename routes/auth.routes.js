@@ -2,13 +2,13 @@ const { Router } = require("express");
 const { check } = require("express-validator");
 const { validarCampos } = require("../middlewares/validar-campos");
 const {
-  crearUsuario,
-  loginUsuario,
-  revalidarToken,
-  crearUsuarioCliente,
   getUser,
-  actualizarUsuario,
-  loginUsuarioGoogle,
+  getGoogleDataByCredential,
+  loginUser,
+  createUser,
+  revalidateToken,
+  updateUser,
+  loginGoogleUser,
 } = require("../controllers/auth.controller");
 const { validarJWT } = require("../middlewares/validar-jwt");
 
@@ -18,62 +18,46 @@ router.post(
   "/new",
   [
     // middlewares
-    check("nombre", "El nombre es obligatorio").not().isEmpty(),
-    check("email", "El email es obligatorio").isEmail(),
-    check("password", "El password debe de ser de 6 caracteres").isLength({
+    check("name", "Name is required").not().isEmpty(),
+    check("email", "Email is required").isEmail(),
+    check("password", "Password must have at least 6 characters").isLength({
       min: 6,
     }),
     validarCampos,
   ],
-  crearUsuario
-);
-router.post(
-  "/newcliente",
-  [
-    // middlewares
-    check("nombre", "El nombre es obligatorio").not().isEmpty(),
-    check("email", "El email es obligatorio").isEmail(),
-    check("password", "El password debe de ser de 6 caracteres").isLength({
-      min: 6,
-    }),
-    validarCampos,
-  ],
-  crearUsuarioCliente
+  createUser
 );
 router.post(
   "/google",
   [
-    check("email", "El email es obligatorio").isEmail(),
-    check("nombre", "El nombre es obligatorio").not().isEmpty(),
-    check("apellido", "El apellido es obligatorio").not().isEmpty(),
+    check("email", "Email is required").isEmail(),
+    check("name", "Name is required").not().isEmpty(),
+    check("lastname", "Lastname is required").not().isEmpty(),
     validarCampos,
   ],
-  loginUsuarioGoogle
+  loginGoogleUser
 );
-// router.post(
-//   "/newgoogle",
-//   [
-//     check("credential", "El apellido es obligatorio").not().isEmpty(),
-//     validarCampos,
-//   ],
-//   loginUsuarioNuevoGoogle
-// );
+router.post(
+  "/newgoogle",
+  [
+    check("credential", "Credential is required").not().isEmpty(),
+    validarCampos,
+  ],
+  getGoogleDataByCredential
+);
 router.post(
   "/",
   [
-    check("email", "El email es obligatorio").isEmail(),
-    check("password", "El password debe de ser de 6 caracteres").isLength({
+    check("email", "Email is required").isEmail(),
+    check("password", "Password must have at least 6 characters").isLength({
       min: 6,
     }),
     validarCampos,
   ],
-  loginUsuario
+  loginUser
 );
-
-
-router.get("/renew", validarJWT, revalidarToken);
+router.get("/renew", validarJWT, revalidateToken);
 router.get("/:id", getUser);
-router.put("/editusuario", actualizarUsuario);
-
+router.put("/editusuario", updateUser);
 
 module.exports = router;

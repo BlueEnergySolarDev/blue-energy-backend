@@ -1,11 +1,11 @@
-const { Schema, model, Number } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const UsuarioSchema = Schema({
-    nombre: {
+const UserSchema = Schema({
+    name: {
         type: String,
         required: true
     },
-    apellido: {
+    lastname: {
         type: String,
         required: true
     },
@@ -18,93 +18,24 @@ const UsuarioSchema = Schema({
         type: String,
         required: true
     },
-    // passwordShow: {
-    //     type: String,
-    // },
-    rol: {
+    role: {
         type: String,
         required: true
     },
-    estado: {
-        type:Boolean,
-        default:true,
-        required: true
-    },
-    online: {
-        type:Boolean,
-        default:true,
-        required: true
-    },
-    fotos:[{
-        like:Boolean,
-        evento:String,
-        foto:String,
-        nombrevento:String,
-        ubicacion:String,
-        fecha:Date
-    }],
-    acctok:{
-        type:String,
-    },
-    pubkey:{
-        type:String,
-    },
-    vendedorid: {
+    office: {
         type: String,
+        required: true
     },
-    // dni: {
-    //     type: Number,
-    //     unique: true
-    // },
-    // ganancia: {
-    //     type: Number,
-    // },
-    // deuda: {
-    //     type: Number,
-    // },
-    // totalEntradas: {
-    //     type: Number,
-    // },
-    // comisionEnt: {
-    //     type: Number,
-    // },
-    // comisionRRPP: {
-    //     type: Number,
-    // },
-    // evento: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Evento",
-    // },
-    // rrpp: {
-    //     type:String
-    // },
-    // maxFree: {
-    //     type:Number
-    // },
-    // eventos: [{
-    //     evento: String,
-    //     eventoNombre:String,
-    //     deuda: Number,
-    //     rolEvento:String,
-    //     deudaComision: Number,
-    //     cantFreeCargados:Number,
-    //     totalEntradas:Number,
-    //     maxFree:Number,
-    //     rrpp:String,
-    //     comisionEnt:Number,
-    //     comisionRRPP:Number,
-    //     rrppNombre:String
-    // }],
-    // usuario: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Usuario",
-    // },
+    status: {
+        type: Boolean,
+        default: true
+    }
 });
-UsuarioSchema.methods.toJSON = function(){
-    const {_id, password,...usuario} = this.toObject();
-    usuario.uid=_id;
-    return usuario;
+UserSchema.methods.toJSON = function () {
+    const { _id, password, ...user } = this.toObject();
+    user.uid = _id;
+    return user;
 }
 
-module.exports = model('Usuario', UsuarioSchema );
+module.exports = model('User', UserSchema);
 
