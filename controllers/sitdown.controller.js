@@ -82,7 +82,6 @@ const addSitDownSimple = async (req, res = response) => {
 };
 
 const createSitDown = async (req, res = response) => {
-  // const { email, password, name, lastname, role } = req.body;
   try {
     //Initialize sitdown
     const sitDown = new SitDown(req.body);
@@ -101,6 +100,7 @@ const createSitDown = async (req, res = response) => {
     });
   }
 };
+
 const getSitDowns = async (req, res) => {
   const query = { estado: true };
 

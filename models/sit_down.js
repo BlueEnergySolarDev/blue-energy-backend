@@ -29,7 +29,7 @@ const SitDownSchema = Schema({
     required: true,
   },
   status: {
-    type: Boolean,
+    type: String,
     default: true,
   },
   closer: {
