@@ -1,3 +1,4 @@
+const { toPascalCase } = require("../helpers/pascalCase");
 const { SitDown, SitDownCounter, SitDownSimple } = require("../models");
 
 const addSitDownSimple = async (req, res = response) => {
@@ -102,30 +103,26 @@ const createSitDown = async (req, res = response) => {
 };
 
 const getSitDowns = async (req, res) => {
-  const query = { estado: true };
-
-  const [total, sitdowns] = await Promise.all([
-    SitDown.countDocuments(query),
-    SitDown.find(query)
+  const [total, sitDowns] = await Promise.all([
+    SitDown.countDocuments(),
+    SitDown.find()
   ]);
-  res.json({ total, sitdowns });
+  res.json({ total, sitDowns });
 };
 
 const getSitDownsByOffice = async (req, res) => {
-  const { limit = 5, from = 0 } = req.params;
-  const query = { estado: true };
-
-  const [total, sitdowns] = await Promise.all([
-    SitDown.countDocuments(query),
-    SitDown.find(query)
+  const [total, sitDowns] = await Promise.all([
+    SitDown.countDocuments(),
+    SitDown.find()
   ]);
-  res.json({ total, sitdowns });
+  res.json({ total, sitDowns });
 };
 
 const getSitDownsSimples = async (req, res) => {
   const [total, sitDownsSimples] = await Promise.all([
-    SitDownSimple.countDocuments(query),
-    SitDownSimple.find(query)
+    SitDownSimple.countDocuments(),
+    SitDownSimple.find()
+      .populate('user', ['name', 'lastname'])
   ]);
   res.json({ total, sitDownsSimples });
 };
@@ -172,11 +169,34 @@ const getSitDownCounterByOffice = async (req, res) => {
   }
 };
 
+const getSitDownCounter = async (req, res) => {
+  const sitDownCounter = await SitDownCounter.find().lean();
+  if (sitDownCounter.length === 0) {
+    return res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  } else {
+    const offices = [];
+    const { __v, _id, ...data } = sitDownCounter[0];
+    for (const [key, value] of Object.entries(data)) {
+      const friendlyKey = toPascalCase(key.replace(/_/g, ' '));
+      const office = {
+        name: friendlyKey,
+        amount: value
+      }
+      offices.push(office);
+    }
+    return res.json({ ok: true, offices });
+  }
+};
+
 module.exports = {
   createSitDown,
   addSitDownSimple,
   getSitDowns,
   getSitDownsSimples,
+  getSitDownCounter,
   getSitDownsByOffice,
   getSitDownsSimplesByOffice,
   getSitDownCounterByOffice,

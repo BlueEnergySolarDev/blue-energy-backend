@@ -46,7 +46,7 @@ const SitDownSchema = Schema({
   },
 });
 SitDownSchema.methods.toJSON = function () {
-  const { __v, status, _id, ...data } = this.toObject();
+  const { __v, _id, ...data } = this.toObject();
   data.id = _id;
   return data;
 }
