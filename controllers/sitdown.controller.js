@@ -2,17 +2,17 @@ const { toPascalCase } = require("../helpers/pascalCase");
 const { SitDown, SitDownCounter, SitDownSimple } = require("../models");
 
 const addSitDownSimple = async (req, res = response) => {
-  const { amount, office, user } = req.body;
-  let newAmount = 0;
+  const { amount, office, fail_credit } = req.body;
+  let newOffice = { name: '', sit_down: 0, fail_credit: 0 };
   try {
     const sitDownCounter = await SitDownCounter.find();
     if (sitDownCounter.length === 0) {
       //Initialize sitdown
       const newSitDownCounter = new SitDownCounter({
-        boca_raton: 0,
-        bradenton: 0,
-        cape_coral: 0,
-        jacksonville: 0
+        boca_raton: { sit_down: 0, fail_credit: 0 },
+        bradenton: { sit_down: 0, fail_credit: 0 },
+        cape_coral: { sit_down: 0, fail_credit: 0 },
+        jacksonville: { sit_down: 0, fail_credit: 0 }
       });
 
       // Save sitdown
@@ -24,16 +24,16 @@ const addSitDownSimple = async (req, res = response) => {
       //Adding the amount
       switch (office) {
         case 'Boca Raton':
-          await SitDownCounter.findOneAndUpdate(query, { boca_raton: amount }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": amount, "boca_raton.fail_credit": fail_credit }, { new: true });
           break;
         case 'Bradenton':
-          await SitDownCounter.findOneAndUpdate(query, { bradenton: amount }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": amount, "bradenton.fail_credit": fail_credit }, { new: true });
           break;
         case 'Cape Coral':
-          await SitDownCounter.findOneAndUpdate(query, { cape_coral: amount }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": amount, "cape_coral.fail_credit": fail_credit }, { new: true });
           break;
         case 'Jacksonville':
-          await SitDownCounter.findOneAndUpdate(query, { jacksonville: amount }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": amount, "jacksonville.fail_credit": fail_credit }, { new: true });
           break;
         default:
           break;
@@ -44,20 +44,36 @@ const addSitDownSimple = async (req, res = response) => {
       //Adding the amount
       switch (office) {
         case 'Boca Raton':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { boca_raton: sitDownCounter[0].boca_raton + amount }, { new: true });
-          newAmount = sitDownCounterAmount.boca_raton;
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": sitDownCounter[0].boca_raton.sit_down + amount, "boca_raton.fail_credit": sitDownCounter[0].boca_raton.fail_credit + fail_credit }, { new: true });
+          newOffice = {
+            name: 'Boca Raton',
+            sit_down: sitDownCounterAmount.boca_raton.sit_down,
+            fail_credit: sitDownCounterAmount.boca_raton.fail_credit
+          }
           break;
         case 'Bradenton':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { bradenton: sitDownCounter[0].bradenton + amount }, { new: true });
-          newAmount = sitDownCounterAmount.bradenton;
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": sitDownCounter[0].bradenton.sit_down + amount, "bradenton.fail_credit": sitDownCounter[0].bradenton.fail_credit + fail_credit }, { new: true });
+          newOffice = {
+            name: 'Bradenton',
+            sit_down: sitDownCounterAmount.bradenton.sit_down,
+            fail_credit: sitDownCounterAmount.bradenton.fail_credit
+          }
           break;
         case 'Cape Coral':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { cape_coral: sitDownCounter[0].cape_coral + amount }, { new: true });
-          newAmount = sitDownCounterAmount.cape_coral;
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": sitDownCounter[0].cape_coral.sit_down + amount, "cape_coral.fail_credit": sitDownCounter[0].cape_coral.fail_credit + fail_credit }, { new: true });
+          newOffice = {
+            name: 'Cape Coral',
+            sit_down: sitDownCounterAmount.cape_coral.sit_down,
+            fail_credit: sitDownCounterAmount.cape_coral.fail_credit
+          }
           break;
         case 'Jacksonville':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { jacksonville: sitDownCounter[0].jacksonville + amount }, { new: true });
-          newAmount = sitDownCounterAmount.jacksonville;
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": sitDownCounter[0].jacksonville.sit_down + amount, "jacksonville.fail_credit": sitDownCounter[0].jacksonville.fail_credit + fail_credit }, { new: true });
+          newOffice = {
+            name: 'Jacksonville',
+            sit_down: sitDownCounterAmount.jacksonville.sit_down,
+            fail_credit: sitDownCounterAmount.jacksonville.fail_credit
+          }
           break;
         default:
           break;
@@ -71,7 +87,7 @@ const addSitDownSimple = async (req, res = response) => {
 
     res.status(201).json({
       ok: true,
-      amount: newAmount
+      office: newOffice
     });
   } catch (error) {
     console.log(error);
@@ -111,9 +127,11 @@ const getSitDowns = async (req, res) => {
 };
 
 const getSitDownsByOffice = async (req, res) => {
+  const { office } = req.params;
+  const query = { office };
   const [total, sitDowns] = await Promise.all([
-    SitDown.countDocuments(),
-    SitDown.find()
+    SitDown.countDocuments(query),
+    SitDown.find(query)
   ]);
   res.json({ total, sitDowns });
 };
@@ -141,7 +159,7 @@ const getSitDownsSimplesByOffice = async (req, res) => {
 
 const getSitDownCounterByOffice = async (req, res) => {
   const { office } = req.params;
-  let amount = 0;
+  let newOffice = { name: '', sit_down: 0, fail_credit: 0 };
   const sitDownCounter = await SitDownCounter.find();
   if (sitDownCounter.length === 0) {
     return res.status(500).json({
@@ -149,22 +167,38 @@ const getSitDownCounterByOffice = async (req, res) => {
       msg: "Please, contact the admin",
     });
   } else {
-    //Get the office amount
+    //Get the office
     switch (office) {
       case 'Boca Raton':
-        amount = sitDownCounter[0].boca_raton;
-        return res.json({ ok: true, amount });
+        newOffice = {
+          name: 'Boca Raton',
+          sit_down: sitDownCounter[0].boca_raton.sit_down,
+          fail_credit: sitDownCounter[0].boca_raton.fail_credit
+        }
+        return res.json({ ok: true, office: newOffice });
       case 'Bradenton':
-        amount = sitDownCounter[0].bradenton;
-        return res.json({ ok: true, amount });
+        newOffice = {
+          name: 'Bradenton',
+          sit_down: sitDownCounter[0].bradenton.sit_down,
+          fail_credit: sitDownCounter[0].bradenton.fail_credit
+        }
+        return res.json({ ok: true, office: newOffice });
       case 'Cape Coral':
-        amount = sitDownCounter[0].cape_coral;
-        return res.json({ ok: true, amount });
+        newOffice = {
+          name: 'Cape Coral',
+          sit_down: sitDownCounter[0].cape_coral.sit_down,
+          fail_credit: sitDownCounter[0].cape_coral.fail_credit
+        }
+        return res.json({ ok: true, office: newOffice });
       case 'Jacksonville':
-        amount = sitDownCounter[0].jacksonville;
-        return res.json({ ok: true, amount });
+        newOffice = {
+          name: 'Jacksonville',
+          sit_down: sitDownCounter[0].jacksonville.sit_down,
+          fail_credit: sitDownCounter[0].jacksonville.fail_credit
+        }
+        return res.json({ ok: true, office: newOffice });
       default:
-        return res.json({ ok: true, amount });
+        return res.json({ ok: true, office: newOffice });
     }
   }
 };
@@ -183,7 +217,8 @@ const getSitDownCounter = async (req, res) => {
       const friendlyKey = toPascalCase(key.replace(/_/g, ' '));
       const office = {
         name: friendlyKey,
-        amount: value
+        sit_down: value.sit_down,
+        fail_credit: value.fail_credit
       }
       offices.push(office);
     }

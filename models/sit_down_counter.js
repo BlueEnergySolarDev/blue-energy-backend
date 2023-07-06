@@ -2,16 +2,20 @@ const { Schema, model } = require("mongoose");
 
 const SitDownCounterSchema = Schema({
   boca_raton: {
-    type: Number,
+    sit_down: Number,
+    fail_credit: Number
   },
   bradenton: {
-    type: Number,
+    sit_down: Number,
+    fail_credit: Number
   },
   cape_coral: {
-    type: Number,
+    sit_down: Number,
+    fail_credit: Number
   },
   jacksonville: {
-    type: Number,
+    sit_down: Number,
+    fail_credit: Number
   },
 });
 SitDownCounterSchema.methods.toJSON = function () {

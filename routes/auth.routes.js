@@ -9,6 +9,7 @@ const {
   revalidateToken,
   updateUser,
   loginGoogleUser,
+  changePassword,
 } = require("../controllers/auth.controller");
 const { validarJWT } = require("../middlewares/validar-jwt");
 
@@ -57,7 +58,20 @@ router.post(
   loginUser
 );
 router.get("/renew", validarJWT, revalidateToken);
-router.get("/:id", getUser);
-router.put("/editusuario", updateUser);
+router.get("/:id",
+  [
+    check("id", "Invalid ID").isMongoId(),
+    validarCampos,
+  ],
+  getUser
+);
+router.put("/edit", updateUser);
+router.put("/changepass/:id",
+  [
+    check("id", "Invalid ID").isMongoId(),
+    validarCampos,
+  ],
+  changePassword
+);
 
 module.exports = router;

@@ -9,6 +9,10 @@ const SitDownSimpleSchema = Schema({
     type: Number,
     required: true,
   },
+  fail_credit: {
+    type: Number,
+    required: true,
+  },
   user: {
     type: Types.ObjectId,
     ref: 'User',

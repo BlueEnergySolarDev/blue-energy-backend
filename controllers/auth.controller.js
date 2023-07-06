@@ -205,9 +205,42 @@ const getUser = async (req, res) => {
   }
 };
 const updateUser = async (req, res) => {
-  const { email, name, password, lastname } = req.body;
+  const { email, name, lastname, office } = req.body;
   try {
     const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        msg: `The user not exists`,
+      });
+    }
+    const update = { email, name, lastname, office };
+    const userUpdate = await User.findOneAndUpdate({ email }, update, { new: true });
+    let uid = userUpdate._id;
+    let role = userUpdate.role;
+    let namee = userUpdate.name;
+    let officee = userUpdate.office;
+    return res.status(200).json({
+      ok: true,
+      uid,
+      role,
+      name: namee,
+      office: officee,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { id, password } = req.body;
+  const query = { _id: id };
+  try {
+    const user = await User.findOne(query);
     if (!user) {
       return res.status(400).json({
         ok: false,
@@ -218,9 +251,9 @@ const updateUser = async (req, res) => {
     const salt = bcrypt.genSaltSync();
     const newPassword = bcrypt.hashSync(password.trim(), salt);
     const pass = newPassword.trim();
-    const update = { email, name, password: pass, lastname };
-    const userUpdate = await User.findOneAndUpdate({ email }, update, { new: true });
-    return res.status(201).json({ ok: true, user: userUpdate });
+    const update = { password: pass };
+    await User.findOneAndUpdate(query, update, { new: true });
+    return res.status(200).json({ ok: true, msg: "Password changed successfully" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -237,5 +270,6 @@ module.exports = {
   getUser,
   updateUser,
   loginGoogleUser,
-  getGoogleDataByCredential
+  getGoogleDataByCredential,
+  changePassword
 };

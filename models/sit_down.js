@@ -16,13 +16,8 @@ const SitDownSchema = Schema({
   email: {
     type: String,
   },
-  proposal: {
-    type: String,
-    required: true,
-  },
   reason: {
     type: String,
-    required: true,
   },
   date: {
     type: Date,
