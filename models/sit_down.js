@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
 const SitDownSchema = Schema({
   name: {
@@ -28,12 +28,12 @@ const SitDownSchema = Schema({
     default: true,
   },
   closer: {
-    type: String,
-    default: true,
+    type: Types.ObjectId,
+    ref: 'Closer',
   },
   canvasser: {
-    type: String,
-    default: true,
+    type: Types.ObjectId,
+    ref: 'Canvasser',
   },
   office: {
     type: String,

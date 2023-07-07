@@ -32,8 +32,10 @@ app.use(compression());
 // Rutas
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/sitdowns", require("./routes/sitdown.routes"));
-app.get('/*', function (req, res) {res.sendFile(path.join(__dirname, 'public', 'index.html'));});
-app.get('/', function (req, res) {res.sendFile(path.join(__dirname, 'public', 'index.html'));});
+app.use("/api/closers", require("./routes/closer.routes"));
+app.use("/api/canvassers", require("./routes/canvasser.routes"));
+app.get('/*', function (req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/', function (req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 
 // Escuchar peticiones
 app.listen(process.env.PORT, () => {
