@@ -30,10 +30,12 @@ const SitDownSchema = Schema({
   closer: {
     type: Types.ObjectId,
     ref: 'Closer',
+    default: null
   },
   canvasser: {
     type: Types.ObjectId,
     ref: 'Canvasser',
+    default: null
   },
   office: {
     type: String,

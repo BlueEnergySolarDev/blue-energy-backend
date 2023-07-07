@@ -23,6 +23,7 @@
     "express-validator": "^6.5.0",
     "google-auth-library": "^8.8.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.18"
+    "mongoose": "^5.9.18",
+    "node-cron": "^3.0.2"
   }
 }

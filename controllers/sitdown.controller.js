@@ -122,6 +122,8 @@ const getSitDowns = async (req, res) => {
   const [total, sitDowns] = await Promise.all([
     SitDown.countDocuments(),
     SitDown.find()
+      .populate('closer', ['firstName', 'lastName'])
+      .populate('canvasser', ['firstName', 'lastName'])
   ]);
   res.json({ total, sitDowns });
 };
@@ -132,6 +134,8 @@ const getSitDownsByOffice = async (req, res) => {
   const [total, sitDowns] = await Promise.all([
     SitDown.countDocuments(query),
     SitDown.find(query)
+      .populate('closer', ['firstName', 'lastName'])
+      .populate('canvasser', ['firstName', 'lastName'])
   ]);
   res.json({ total, sitDowns });
 };

@@ -5,6 +5,8 @@ const cors = require("cors");
 const { dbConnection } = require("./database/config");
 const path = require("path");
 const compression = require('compression');
+const cron = require('node-cron');
+const { addCanvassersCron, addClosersCron } = require("./helpers/cronJobs");
 
 // Crear el servidor de express
 const app = express();
@@ -36,6 +38,11 @@ app.use("/api/closers", require("./routes/closer.routes"));
 app.use("/api/canvassers", require("./routes/canvasser.routes"));
 app.get('/*', function (req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/', function (req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+
+cron.schedule('0 0 0 * * *', () => {
+  addClosersCron();
+  addCanvassersCron();
+});
 
 // Escuchar peticiones
 app.listen(process.env.PORT, () => {
