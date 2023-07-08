@@ -41,6 +41,11 @@ const SitDownSchema = Schema({
     type: String,
     default: true,
   },
+  user: {
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 SitDownSchema.methods.toJSON = function () {
   const { __v, _id, ...data } = this.toObject();

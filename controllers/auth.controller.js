@@ -185,9 +185,18 @@ const revalidateToken = async (req, res = response) => {
     office
   });
 };
+
+const getUsers = async (req, res) => {
+  const [total, users] = await Promise.all([
+    User.countDocuments(),
+    User.find()
+  ]);
+  res.json({ total, users });
+};
+
 const getUser = async (req, res) => {
   const { id } = req.params;
-  const query = { status: true, _id: id };
+  const query = { _id: id };
   try {
     const user = await User.findOne(query);
     if (!user) {
@@ -236,6 +245,38 @@ const updateUser = async (req, res) => {
   }
 };
 
+const updateUserFromAdmin = async (req, res) => {
+  const { email, name, lastname, office, role, status } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        msg: `The user not exists`,
+      });
+    }
+    const update = { email, name, lastname, office, role, status };
+    const userUpdate = await User.findOneAndUpdate({ email }, update, { new: true });
+    let uid = userUpdate._id;
+    let rolee = userUpdate.role;
+    let namee = userUpdate.name;
+    let officee = userUpdate.office;
+    return res.status(200).json({
+      ok: true,
+      uid,
+      role: rolee,
+      name: namee,
+      office: officee,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  }
+};
+
 const changePassword = async (req, res) => {
   const { id, password } = req.body;
   const query = { _id: id };
@@ -271,5 +312,7 @@ module.exports = {
   updateUser,
   loginGoogleUser,
   getGoogleDataByCredential,
-  changePassword
+  changePassword,
+  getUsers,
+  updateUserFromAdmin
 };
