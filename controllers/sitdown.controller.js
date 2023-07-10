@@ -1,5 +1,5 @@
 const { toPascalCase } = require("../helpers/pascalCase");
-const { SitDown, SitDownCounter, SitDownSimple } = require("../models");
+const { SitDown, SitDownCounter, SitDownSimple, User } = require("../models");
 
 const addSitDownSimple = async (req, res = response) => {
   const { amount, office, fail_credit } = req.body;
@@ -106,9 +106,12 @@ const createSitDown = async (req, res = response) => {
     // Save sitdown
     const newSitDown = await sitDown.save();
 
+    // Populate fields
+    const populatedSitDown = await newSitDown.populate('closer', ['firstName', 'lastName']).populate('canvasser', ['firstName', 'lastName']).execPopulate();
+
     res.status(201).json({
       ok: true,
-      sitDown: newSitDown
+      sitDown: populatedSitDown
     });
   } catch (error) {
     console.log(error);
@@ -239,6 +242,7 @@ const getSitDownCounterById = async (req, res) => {
   let fail_credit = 0;
   let sit_down = 0;
   const sitDownsSimples = await SitDownSimple.find(query);
+  const user = await User.findOne({ "_id": id });
 
   const sitDownsSimplesLen = sitDownsSimples.length;
   for (let i = 0; i < sitDownsSimplesLen; i++) {
@@ -246,6 +250,7 @@ const getSitDownCounterById = async (req, res) => {
     sit_down += sitDownsSimples[i].amount;
   }
   const office = {
+    name: user.office,
     fail_credit,
     sit_down
   }

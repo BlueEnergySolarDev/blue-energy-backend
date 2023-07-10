@@ -167,8 +167,8 @@ const revalidateToken = async (req, res = response) => {
       role = user.role;
       office = user.office;
     } else {
-      role = "closer";
-      office = "Cape Coral";
+      role = "office_manager";
+      office = "Boca Raton";
     }
   } catch (error) {
     console.log(error)

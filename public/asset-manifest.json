@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.c871c698.css",
-    "main.js": "/static/js/main.7d9ccc79.js",
+    "main.css": "/static/css/main.4651b1ce.css",
+    "main.js": "/static/js/main.d62f73ae.js",
     "static/media/logo.png": "/static/media/logo.a3c907222cf45797fe62.png",
     "static/media/logo-nav.png": "/static/media/logo-nav.7440bbd1741f3358e732.png",
     "static/media/QanelasSoftDEMO-Medium.woff2": "/static/media/QanelasSoftDEMO-Medium.344c33c28191066a57b9.woff2",
@@ -10,11 +10,11 @@
     "static/media/Mollen-BoldPersonalUse.woff2": "/static/media/Mollen-BoldPersonalUse.f2a35b07a88540d3b945.woff2",
     "static/media/GeorginaDemo-Regular.woff2": "/static/media/GeorginaDemo-Regular.9c465b9717e4b6cf0b88.woff2",
     "index.html": "/index.html",
-    "main.c871c698.css.map": "/static/css/main.c871c698.css.map",
-    "main.7d9ccc79.js.map": "/static/js/main.7d9ccc79.js.map"
+    "main.4651b1ce.css.map": "/static/css/main.4651b1ce.css.map",
+    "main.d62f73ae.js.map": "/static/js/main.d62f73ae.js.map"
   },
   "entrypoints": [
-    "static/css/main.c871c698.css",
-    "static/js/main.7d9ccc79.js"
+    "static/css/main.4651b1ce.css",
+    "static/js/main.d62f73ae.js"
   ]
 }
