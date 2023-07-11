@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { validarJWT } = require("../middlewares/validar-jwt");
-const { getSitDowns, createSitDown, getSitDownsSimples, addSitDownSimple, getSitDownCounterByOffice, getSitDownsSimplesByOffice, getSitDownCounter, getSitDownsByOffice, getSitDownsById, getSitDownCounterById, getSitDownsSimplesById, getSitDown, updateSitDown, getSitDownsBySearch, getSitDownsBySearchByCloser, getSitDownsBySearchByStatus, getSitDownsBySearchByCanvasser } = require("../controllers/sitdown.controller");
+const { getSitDowns, createSitDown, getSitDownsSimples, addSitDownSimple, getSitDownCounterByOffice, getSitDownsSimplesByOffice, getSitDownCounter, getSitDownsByOffice, getSitDownsById, getSitDownCounterById, getSitDownsSimplesById, getSitDown, updateSitDown, getSitDownsBySearch, getSitDownsBySearchByCloser, getSitDownsBySearchByStatus, getSitDownsBySearchByCanvasser, getSitDownsSimplesBySearchByDate } = require("../controllers/sitdown.controller");
 
 const router = Router();
 router.use(validarJWT);
@@ -9,6 +9,7 @@ router.use(validarJWT);
 router.post("/addsimple", addSitDownSimple);
 router.get("/simple", getSitDownsSimples);
 router.get("/simple/id/:id", getSitDownsSimplesById);
+router.get("/simple/searchbydate/:date", getSitDownsSimplesBySearchByDate);
 router.get("/simple/:office", getSitDownsSimplesByOffice);
 
 //Counter
