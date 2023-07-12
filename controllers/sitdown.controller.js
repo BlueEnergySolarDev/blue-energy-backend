@@ -265,7 +265,7 @@ const getSitDownCounterById = async (req, res) => {
     sit_down += sitDownsSimples[i].amount;
   }
   const office = {
-    name: user.office,
+    name: user?.office,
     fail_credit,
     sit_down,
     last_update
