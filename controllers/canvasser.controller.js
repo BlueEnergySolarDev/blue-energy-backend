@@ -99,8 +99,30 @@ const getCanvassersByOffice = async (req, res) => {
   res.json({ total, canvassers });
 };
 
+const createCanvasser = async (req, res = response) => {
+  try {
+    //Initialize canvasser
+    const canvasser = new Canvasser(req.body);
+
+    // Save canvasser
+    const newCanvasser = await canvasser.save();
+
+    res.status(201).json({
+      ok: true,
+      canvasser: newCanvasser
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  }
+};
+
 module.exports = {
   addCanvassers,
   getCanvassers,
   getCanvassersByOffice,
+  createCanvasser
 };

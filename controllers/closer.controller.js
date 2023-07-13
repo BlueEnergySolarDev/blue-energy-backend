@@ -67,8 +67,30 @@ const getClosersByOffice = async (req, res) => {
   res.json({ total, closers });
 };
 
+const createCloser = async (req, res = response) => {
+  try {
+    //Initialize closer
+    const closer = new Closer(req.body);
+
+    // Save closer
+    const newCloser = await closer.save();
+
+    res.status(201).json({
+      ok: true,
+      closer: newCloser
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Please, contact the admin",
+    });
+  }
+};
+
 module.exports = {
   addClosers,
   getClosers,
   getClosersByOffice,
+  createCloser
 };
