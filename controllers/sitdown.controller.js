@@ -4,6 +4,8 @@ const { SitDown, SitDownCounter, SitDownSimple, User } = require("../models");
 
 const addSitDownSimple = async (req, res = response) => {
   const { amount, office, fail_credit } = req.body;
+  const amountFormat = +amount;
+  const failCreditFormat = +fail_credit;
   let newOffice = { name: '', sit_down: 0, fail_credit: 0, last_update: null };
   try {
     const sitDownCounter = await SitDownCounter.find();
@@ -25,16 +27,16 @@ const addSitDownSimple = async (req, res = response) => {
       //Adding the amount
       switch (office) {
         case 'Boca Raton':
-          await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": amount, "boca_raton.fail_credit": fail_credit, "boca_raton.last_update": Date.now() }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": amountFormat, "boca_raton.fail_credit": failCreditFormat, "boca_raton.last_update": Date.now() }, { new: true });
           break;
         case 'Bradenton':
-          await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": amount, "bradenton.fail_credit": fail_credit, "bradenton.last_update": Date.now() }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": amountFormat, "bradenton.fail_credit": failCreditFormat, "bradenton.last_update": Date.now() }, { new: true });
           break;
         case 'Cape Coral':
-          await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": amount, "cape_coral.fail_credit": fail_credit, "cape_coral.last_update": Date.now() }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": amountFormat, "cape_coral.fail_credit": failCreditFormat, "cape_coral.last_update": Date.now() }, { new: true });
           break;
         case 'Jacksonville':
-          await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": amount, "jacksonville.fail_credit": fail_credit, "jacksonville.last_update": Date.now() }, { new: true });
+          await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": amountFormat, "jacksonville.fail_credit": failCreditFormat, "jacksonville.last_update": Date.now() }, { new: true });
           break;
         default:
           break;
@@ -45,39 +47,39 @@ const addSitDownSimple = async (req, res = response) => {
       //Adding the amount
       switch (office) {
         case 'Boca Raton':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": sitDownCounter[0].boca_raton.sit_down + amount, "boca_raton.fail_credit": sitDownCounter[0].boca_raton.fail_credit + fail_credit, "boca_raton.last_update": Date.now() }, { new: true });
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "boca_raton.sit_down": sitDownCounter[0].boca_raton.sit_down + amountFormat, "boca_raton.fail_credit": sitDownCounter[0].boca_raton.fail_credit + failCreditFormat, "boca_raton.last_update": Date.now() }, { new: true });
           newOffice = {
             name: 'Boca Raton',
             sit_down: sitDownCounterAmount.boca_raton.sit_down,
             fail_credit: sitDownCounterAmount.boca_raton.fail_credit,
-            last_update: Date.now()
+            last_update: sitDownCounterAmount.boca_raton.last_update,
           }
           break;
         case 'Bradenton':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": sitDownCounter[0].bradenton.sit_down + amount, "bradenton.fail_credit": sitDownCounter[0].bradenton.fail_credit + fail_credit, "bradenton.last_update": Date.now() }, { new: true });
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "bradenton.sit_down": sitDownCounter[0].bradenton.sit_down + amountFormat, "bradenton.fail_credit": sitDownCounter[0].bradenton.fail_credit + failCreditFormat, "bradenton.last_update": Date.now() }, { new: true });
           newOffice = {
             name: 'Bradenton',
             sit_down: sitDownCounterAmount.bradenton.sit_down,
             fail_credit: sitDownCounterAmount.bradenton.fail_credit,
-            last_update: Date.now()
+            last_update: sitDownCounterAmount.bradenton.last_update,
           }
           break;
         case 'Cape Coral':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": sitDownCounter[0].cape_coral.sit_down + amount, "cape_coral.fail_credit": sitDownCounter[0].cape_coral.fail_credit + fail_credit, "cape_coral.last_update": Date.now() }, { new: true });
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "cape_coral.sit_down": sitDownCounter[0].cape_coral.sit_down + amountFormat, "cape_coral.fail_credit": sitDownCounter[0].cape_coral.fail_credit + failCreditFormat, "cape_coral.last_update": Date.now() }, { new: true });
           newOffice = {
             name: 'Cape Coral',
             sit_down: sitDownCounterAmount.cape_coral.sit_down,
             fail_credit: sitDownCounterAmount.cape_coral.fail_credit,
-            last_update: Date.now()
+            last_update: sitDownCounterAmount.cape_coral.last_update,
           }
           break;
         case 'Jacksonville':
-          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": sitDownCounter[0].jacksonville.sit_down + amount, "jacksonville.fail_credit": sitDownCounter[0].jacksonville.fail_credit + fail_credit, "jacksonville.last_update": Date.now() }, { new: true });
+          sitDownCounterAmount = await SitDownCounter.findOneAndUpdate(query, { "jacksonville.sit_down": sitDownCounter[0].jacksonville.sit_down + amountFormat, "jacksonville.fail_credit": sitDownCounter[0].jacksonville.fail_credit + failCreditFormat, "jacksonville.last_update": Date.now() }, { new: true });
           newOffice = {
             name: 'Jacksonville',
             sit_down: sitDownCounterAmount.jacksonville.sit_down,
             fail_credit: sitDownCounterAmount.jacksonville.fail_credit,
-            last_update: Date.now()
+            last_update: sitDownCounterAmount.jacksonville.last_update,
           }
           break;
         default:
@@ -394,6 +396,35 @@ const getSitDownsSimplesBySearchByDate = async (req, res) => {
   }
 };
 
+const getSitDownsBySearchById = async (req, res) => {
+  const { id, search } = req.params;
+  const query = { "name": { $regex: '.*' + search, $options: 'i' }, "user": id };
+
+  const sitDowns = await SitDown.find(query).populate('closer', ['firstName', 'lastName']).populate('canvasser', ['firstName', 'lastName']).sort('lastName');
+  res.json({ sitDowns });
+};
+
+const getSitDownsBySearchByCloserById = async (req, res) => {
+  const { id, closer } = req.params;
+  const query = { closer, "user": id };
+  const sitDowns = await SitDown.find(query).populate('closer', ['firstName', 'lastName']).populate('canvasser', ['firstName', 'lastName']).sort('lastName');
+  res.json({ sitDowns });
+};
+
+const getSitDownsBySearchByCanvasserById = async (req, res) => {
+  const { id, canvasser } = req.params;
+  const query = { canvasser, "user": id };
+  const sitDowns = await SitDown.find(query).populate('closer', ['firstName', 'lastName']).populate('canvasser', ['firstName', 'lastName']).sort('lastName');
+  res.json({ sitDowns });
+};
+
+const getSitDownsBySearchByStatusById = async (req, res) => {
+  const { id, status } = req.params;
+  const query = { status, "user": id };
+  const sitDowns = await SitDown.find(query).populate('closer', ['firstName', 'lastName']).populate('canvasser', ['firstName', 'lastName']).sort('lastName');
+  res.json({ sitDowns });
+};
+
 module.exports = {
   createSitDown,
   addSitDownSimple,
@@ -412,5 +443,9 @@ module.exports = {
   getSitDownsBySearchByCloser,
   getSitDownsBySearchByCanvasser,
   getSitDownsBySearchByStatus,
-  getSitDownsSimplesBySearchByDate
+  getSitDownsSimplesBySearchByDate,
+  getSitDownsBySearchById,
+  getSitDownsBySearchByCloserById,
+  getSitDownsBySearchByCanvasserById,
+  getSitDownsBySearchByStatusById
 };

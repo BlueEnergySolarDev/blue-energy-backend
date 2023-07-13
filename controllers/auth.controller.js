@@ -213,6 +213,7 @@ const getUser = async (req, res) => {
     });
   }
 };
+
 const updateUser = async (req, res) => {
   const { email, name, lastname, office } = req.body;
   try {
@@ -278,7 +279,8 @@ const updateUserFromAdmin = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-  const { id, password } = req.body;
+  const { password } = req.body;
+  const { id } = req.params;
   const query = { _id: id };
   try {
     const user = await User.findOne(query);
